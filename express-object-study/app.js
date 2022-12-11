@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 // Import the classes
-const { UserCreator, QuestTracker } = require("./objects");
+const { UserCreator } = require("./objects");
 
 // Init app
 const app = express();
@@ -24,14 +24,23 @@ app.get("/", (req, res) => {
 
 app.post("/", bodyParserJSON, (req, res) => {
   // create new UserCreator
-  const user = new UserCreator(req.body.name, req.body.age);
-  // create new QuestTracker
-  const questTracker = new QuestTracker(req.body.name);
-  // add questTracker to user
-  user.questTracker = questTracker;
-  // add user to users
+  const user = new UserCreator(req.body.name);
   users.push(user);
   res.send(user);
+});
+
+app.put("/:name", bodyParserJSON, (req, res) => {
+  // find the user
+  const user = users.find((user) => user.name === req.params.name);
+  if (!user) return res.status(404).send("User not found" + req.params.name);
+
+  // action on the score
+  if (req.body.action === "increment") {
+    user.increment();
+  } else if (req.body.action === "decrement") {
+    user.decrement();
+  }
+  res.send(users);
 });
 
 app.listen(5000, () => {

@@ -2,6 +2,24 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [users, setUsers] = useState([]);
+  const [newUser, setNewUser] = useState("");
+
+  // create a new user and add it to the users array on the server
+  const createUser = async () => {
+    // check if the user already exists
+    const userExists = users.find((user) => user.name === newUser);
+    if (userExists) return alert("User already exists");
+
+    const res = await fetch("http://localhost:5000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name: newUser }),
+    });
+    const data = await res.json();
+    setUsers([...users, data]);
+  };
 
   //fetch data from the server
   useEffect(() => {
@@ -13,8 +31,42 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // increment the score of a user
+  const increment = async (name) => {
+    const res = await fetch(`http://localhost:5000/${name}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, action: "increment" }),
+    });
+    const data = await res.json();
+    setUsers(data);
+  };
+
+  // decrement the score of a user
+  const decrement = async (name) => {
+    const res = await fetch(`http://localhost:5000/${name}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, action: "decrement" }),
+    });
+    const data = await res.json();
+    setUsers(data);
+  };
+
   return (
     <div>
+      <h1>Create User</h1>
+      <input
+        type="text"
+        value={newUser}
+        onChange={(e) => setNewUser(e.target.value)}
+      />
+      <button onClick={createUser}>Create User</button>
+      <br />
       <h1>User List</h1>
       {
         // map over the users and display them
@@ -22,7 +74,9 @@ export default function Home() {
           return (
             <div key={user.name}>
               <h2>{user.name}</h2>
-              <h3>{user.age}</h3>
+              <p>Score: {user.score}</p>
+              <button onClick={() => increment(user.name)}>Increment</button>
+              <button onClick={() => decrement(user.name)}>Decrement</button>
             </div>
           );
         })

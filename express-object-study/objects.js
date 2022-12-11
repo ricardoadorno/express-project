@@ -1,30 +1,22 @@
 // create a user class  and export to express app
 
 class UserCreator {
-  constructor(name, age) {
-    this.name = name;
-    this.age = age;
-  }
-}
-
-class QuestTracker {
   constructor(name) {
     this.name = name;
-    this.quests = [];
-    this.completedQuests = [];
+    this.score = 0;
   }
 
-  addQuest(quest) {
-    this.quests.push(quest);
+  increment() {
+    this.score++;
   }
 
-  isCompleteQuest(quest) {
-    if (!this.quests.includes(quest)) {
-      return false;
-    }
-    this.quests = this.quests.filter((q) => q !== quest);
-    this.completedQuests.push(quest);
+  decrement() {
+    this.score--;
+  }
+
+  changeName(name) {
+    this.name = name;
   }
 }
 
-module.exports = { UserCreator, QuestTracker };
+module.exports = { UserCreator };
