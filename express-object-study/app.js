@@ -39,6 +39,8 @@ app.put("/:name", bodyParserJSON, (req, res) => {
     user.increment();
   } else if (req.body.action === "decrement") {
     user.decrement();
+  } else if (req.body.action === "changeName") {
+    user.changeName(req.body.name);
   }
   res.send(users);
 });

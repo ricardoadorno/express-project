@@ -1,8 +1,23 @@
 import { useEffect, useState } from "react";
 
+// ! Add the change user
+
 export default function Home() {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState("");
+
+  const [changeUserName, setChangeUserName] = useState("");
+  const [editUser, setEditUser] = useState(false);
+
+  //fetch data from the server
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await fetch("http://localhost:5000/");
+      const data = await res.json();
+      setUsers(data);
+    };
+    fetchData();
+  }, [setUsers]);
 
   // create a new user and add it to the users array on the server
   const createUser = async () => {
@@ -20,16 +35,6 @@ export default function Home() {
     const data = await res.json();
     setUsers([...users, data]);
   };
-
-  //fetch data from the server
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("http://localhost:5000/");
-      const data = await res.json();
-      setUsers(data);
-    };
-    fetchData();
-  }, []);
 
   // increment the score of a user
   const increment = async (name) => {
@@ -57,6 +62,19 @@ export default function Home() {
     setUsers(data);
   };
 
+  // change the name of a user
+  const changeName = async (name) => {
+    const res = await fetch(`http://localhost:5000/${name}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, action: "changeName" }),
+    });
+    const data = await res.json();
+    setUsers(data);
+  };
+
   return (
     <div>
       <h1>Create User</h1>
@@ -77,6 +95,20 @@ export default function Home() {
               <p>Score: {user.score}</p>
               <button onClick={() => increment(user.name)}>Increment</button>
               <button onClick={() => decrement(user.name)}>Decrement</button>
+
+              <button onClick={() => setEditUser(!editUser)}>Edit</button>
+              {editUser && (
+                <div>
+                  <input
+                    type="text"
+                    value={changeUserName}
+                    onChange={(e) => setChangeUserName(e.target.value)}
+                  />
+                  <button onClick={() => changeName(user.name)}>
+                    Change Name
+                  </button>
+                </div>
+              )}
             </div>
           );
         })
